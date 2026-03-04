@@ -1,0 +1,515 @@
+---
+title: "Relatório Técnico: Cenários de Estimativas de Emissões de GEE no Brasil com o Modelo MAgPIE"
+author: "Fernanda Valente, Sabrina de Matos Carlos, Cícero Lima, Ângelo Gurgel"
+date: "`r Sys.Date()`"
+output:
+  rmdformats::material:
+    base_format: bookdown::html_document2   
+    cards: false
+    lightbox: true
+    thumbnails: true
+    highlight: "tango"
+    code_folding: hide
+---
+
+```{=html}
+<style>
+body {
+  text-align: justify;
+}
+
+/* pinta a faixa superior do tema material */
+.header-panel,
+.material-header,
+.navbar,
+.navbar-default,
+.navbar-inverse,
+.navbar.navbar-inverse.navbar-fixed-top,
+.site-header {
+  background-color: #053D7F !important;
+  border-color: #053D7F !important;
+}
+
+/* deixa os textos do topo legíveis sobre o azul */
+.material-header h1.title,
+h1.title,
+.author, .date,
+.navbar a,
+.navbar .navbar-brand,
+.navbar .nav > li > a {
+  color: #ffffff !important;
+}
+
+/* insere o logo */
+.fgv-logo-fixed {
+  position: fixed;
+  left: 60px;     
+  bottom: 20px;   
+  width: 280px;   
+  z-index: 9999;
+  opacity: 1;
+  background: none !important;
+  padding: 0 !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+.fgv-logo-fixed img {
+  display: block;
+  width: 100%;
+  height: auto;
+  background: none !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+/* deixa ainda maior em telas grandes */
+@media (min-width: 1400px){
+  .fgv-logo-fixed{ width: 280px; }
+}
+
+/* esconde no mobile pra não atrapalhar */
+@media (max-width: 992px){
+  .fgv-logo-fixed{ display: none; }
+}
+
+/* Faz a caixa das figuras ocupar 100% */
+div.figure {
+  width: 100% !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+/* Remove o "card" de fundo do rmdformats para as figuras */
+.material-doc .section .figure, 
+.material-doc .section .figure img {
+  box-shadow: none !important;   
+  border: none !important;       
+  background: none !important;   
+}
+
+/* Garante que a imagem ocupe toda a largura */
+.figure img {
+  display: block;
+  margin: 0 auto;
+  max-width: 100% !important;
+  height: auto !important;
+}
+</style>
+```
+
+```{=html}
+<div class="fgv-logo-fixed">
+  <img src="img/logo_fgv.png" alt="FGV">
+</div>
+```
+
+```{r preambulo, warning= FALSE, message = FALSE}
+# Opções globais dos chunks
+knitr::opts_chunk$set(warning = FALSE, message = FALSE, fig.width = 12, fig.height = 6, out.width = "100%")
+
+# Pacotes
+library(sf); library(sp); library(dplyr); library(raster)
+library(madrat); library(magclass); library(magpie4); library(luplot); library(gdx2)
+library(terra); library(ggplot2); library(scales); library(geobr); library(rmdformats)
+
+# Paleta padrão para mapas
+pal_magpie <- hcl.colors(20, "YlOrBr", rev = TRUE)
+```
+
+```{r dados, warning = FALSE, message = FALSE}
+
+# Mapa de clusters e filtro BRA com lon/lat numéricos
+map_file <- readRDS("clustermap_rev4.121_c200_67420_h12.rds")
+
+BRA <- subset(map_file, country == "BRA")
+coords <- strsplit(BRA$cell, "\\.")
+mat <- do.call(rbind, coords)
+BRA$lon <- as.numeric(gsub("p", ".", mat[,1]))
+BRA$lat <- as.numeric(gsub("p", ".", mat[,2]))
+BRA$iso <- mat[,3]
+
+# Shapes
+bra    <- geobr::read_country(showProgress = FALSE) |> st_transform(4326)
+biomes <- geobr::read_biomes(showProgress = FALSE)  |> st_transform(4326)
+state <- geobr::read_state(showProgress = FALSE) |> st_transform(4326)
+```
+
+```{r helpers, warning=FALSE, message=FALSE}
+# Formata "2010" -> "y2010.y2010"
+fmt_year <- function(y) paste0("y", y, ".y", y)
+
+# Converte magclass -> data.frame com nomes consistentes
+mag_to_df <- function(obj) {
+  df <- as.data.frame(obj, rev = 2)
+  names(df) <- c("lon", "lat", "iso", "year.start", "year.end", "emis_source", "pollutants", "value")
+  df
+}
+
+# GWP (SAR 100y) padronizado
+gwp_sar <- c(co2 = 1, ch4 = 21, n2o = 310)
+
+mt_to_Gg <- function(x) x * 1000
+mt_to_kt <- function(x) x * 1000
+
+# Aplica GWP e converte para Gg CO2e/ano
+apply_gwp <- function(df, gas = "ch4", gwp_table = gwp_sar) {
+  g <- tolower(gas)
+  if (!g %in% names(gwp_table)) stop("Gás não encontrado na tabela de GWP.")
+  df |>
+    mutate(value_co2e = value * gwp_table[[g]])
+}
+
+# Rasteriza um data.frame (lon,lat,value) e retorna grid por ano (lista empilhada)
+gridify_by_year <- function(d, bra_sf) {
+  split(d, d$year.end) |>
+    lapply(function(x) {
+      r  <- terra::rast(x[, c("lon","lat","value")], type = "xyz", crs = "EPSG:4326")
+      r  <- terra::crop(r, terra::vect(bra_sf))
+      r  <- terra::mask(r, terra::vect(bra_sf))
+      gd <- as.data.frame(r, xy = TRUE, na.rm = TRUE)
+      names(gd) <- c("lon","lat","value")
+      gd$year.end <- unique(x$year.end)
+      gd
+    }) |>
+    dplyr::bind_rows()
+}
+
+# Soma total por fonte em um recorte (country, yearS) e retorna top-k nomes (dim k do magclass)
+top_k_sources <- function(dis_obj, country = "BRA", yearS, k = 2, pattern = NULL) {
+  ks <- magclass::getItems(dis_obj, dim = 3)
+  if (!is.null(pattern)) ks <- grep(pattern, ks, value = TRUE)
+  totals <- sapply(ks, function(p) sum(as.numeric(dis_obj[country, yearS, p]), na.rm = TRUE))
+  totals <- totals[totals > 0]
+  names(sort(totals, decreasing = TRUE))[seq_len(min(k, length(totals)))]
+}
+
+# Extrai uma fonte específica e devolve df com lon/lat/iso/anos/value (Mt gás), mais 'source'
+extract_one_source <- function(dis_obj, country, yearS, src) {
+  obj <- dis_obj[country, yearS, src]
+  d   <- mag_to_df(obj)
+  d$lon   <- as.numeric(gsub("p", ".", d$lon))
+  d$lat   <- as.numeric(gsub("p", ".", d$lat))
+  d$source <- src
+  d
+}
+
+# Figura de mapa facetado por ano
+plot_faceted_map <- function(gdf, bra_sf, biomes_sf, title, fill_lab = "kt CO2e", pal = pal_magpie) {
+  ggplot() +
+    geom_raster(data = gdf, aes(lon, lat, fill = value)) +
+    geom_sf(data = biomes_sf, fill = NA, color = "grey35", linewidth = 0.25) +
+    geom_sf(data = bra_sf,    fill = NA, color = "grey15", linewidth = 0.4) +
+    coord_sf(xlim = c(-74, -34), ylim = c(-34, 6), expand = FALSE) +
+    facet_wrap(~ year.end) +
+    scale_fill_gradientn(colors = pal, name = fill_lab) +
+    labs(title = title, caption = "Source: MAgPIE / Default version (SSP2)") +
+    theme_minimal(base_size = 12) +
+    theme(
+      legend.position = "right",
+      panel.grid      = element_blank(),
+      plot.title      = element_text(face = "bold", size = 26, hjust = 0)
+    )
+}
+
+# Mapa facetado por fonte (num único ano)
+plot_by_source <- function(gdf, bra_sf, biomes_sf, title, fill_lab = "kt CO2e", pal = pal_magpie, ncol = 2) {
+  ggplot() +
+    geom_raster(data = gdf, aes(lon, lat, fill = value)) +
+    geom_sf(data = biomes_sf, fill = NA, color = "grey35", linewidth = 0.25) +
+    geom_sf(data = bra_sf,    fill = NA, color = "grey15", linewidth = 0.4) +
+    coord_sf(xlim = c(-74, -34), ylim = c(-34, 6), expand = FALSE) +
+    facet_wrap(~ source, ncol = ncol) +
+    scale_fill_gradientn(colors = pal, name = fill_lab) +
+    labs(title = title, caption = "Source: MAgPIE / Default version (SSP2)") +
+    theme_minimal(base_size = 12) +
+    theme(
+      legend.position = "right",
+      panel.grid      = element_blank(),
+      plot.title      = element_text(face = "bold", size = 22)
+    )
+}
+```
+
+# Introdução
+
+A aplicação de modelos globais de uso da terra e emissões em contextos nacionais exige cautela, dado que cada país apresenta dinâmicas próprias em termos de atividades produtivas, estrutura fundiária, biomas e padrões de emissões. No caso do Brasil, marcado por forte presença do setor agropecuário e pela diversidade de ecossistemas, a incorporação dessas especificidades é fundamental para garantir a consistência das análises.
+
+O MAgPIE (Model of Agricultural Production and its Impact on the Environment) é um modelo global de equilíbrio parcial amplamente utilizado para simular interações entre uso da terra, produção agropecuária, comércio internacional e emissões de gases de efeito estufa (GEE). Entretanto, sua configuração padrão (default) não contempla ajustes específicos para a realidade brasileira, o que levanta a necessidade de avaliar em que medida os resultados obtidos se aproximam dos valores reportados oficialmente.
+
+Neste relatório, busca-se avaliar a aderência do MAgPIE, em sua configuração padrão (cenário SSP2), aos dados de emissões disponibilizados pelo Brasil em seus inventários nacionais de GEE. A análise concentra-se nos principais gases associados ao setor agropecuário e ao uso da terra (metano ($CH_4$), óxido nitroso ($N_2 O$) e dióxido de carbono ($CO_2$)) para os anos de 2010, 2015 e 2020, conforme reportado no Quarto Inventário Nacional de Emissões e Remoções Antrópicas, submetido à Convenção-Quadro das Nações Unidas sobre Mudança do Clima (UNFCCC).
+
+A comparação tem como objetivo compreender a proximidade entre as trajetórias simuladas pelo modelo e os dados observados, destacando potenciais divergências e padrões espaciais relevantes. A partir disso, pretende-se identificar caminhos para ajustes metodológicos que possam aprimorar a utilização do MAgPIE no contexto brasileiro, garantindo maior aderência às especificidades nacionais e maior robustez nas análises futuras.
+
+# Métodos
+
+Para a obtenção dos resultados apresentados a seguir, o MAgPIE foi executado no cenário default (SSP2), e utilizado o arquivo GDX gerado (`fulldata.gdx`) como base para a análise. A extração no R foi feita com as funções disponibilizadas pelo pacote *magpie4*, em especial a função `Emissions()`, que permite recuperar diretamente do GDX as emissões de gases de efeito estufa por tipo de gás, nível de agregação e unidade. Essa função retorna um objeto no formato `magclass`, no qual as dimensões correspondem a regiões, períodos de tempo e fontes de emissão. No caso deste relatório, o parâmetro `type` foi definido de acordo com o gás de interesse (`"ch4"`, `"n2o"`, `"co2"`), o parâmetro level foi configurado como `"reg"` (nível regional do MAgPIE) e a unidade escolhida foi `"GWP100AR5"`, garantindo comparabilidade com os valores oficiais do Inventário Nacional, já que nesse caso as emissões são reportadas em $CO_2$ equivalente ($CO_2e$)  conforme os fatores de equivalência de 100 anos do AR5.
+
+A partir dessa extração em nível regional, foi necessário redistribuir os resultados para nível de célula, sendo 2901 células no território brasileiro. Essa conversão foi feita com a função `toolAggregate()` do pacote *madrat*, que utiliza um mapa de relação entre regiões e células, combinado com um peso espacial. Neste relatório, a variável escolhida como peso foi a área de pastagem, de forma a refletir a distribuição espacial das emissões agropecuárias.
+
+Na dimensão das categorias de emissão, a estrutura do MAgPIE diferencia as fontes por pares `fonte.gás` (por exemplo, `ent_ferm.ch4` para fermentação entérica, `awms.ch4` para manejo de dejetos animais, ou `rice.ch4` para arroz irrigado). Essa organização permitiu tanto a soma das emissões para obter o total de cada gás quanto a decomposição por principais fontes. Além disso, ao aplicar uma conversão de megatoneladas (Mt) para quilotoneladas (kt), os resultados foram ajustados permitindo que fossem comparados diretamente aos valores observados do Quarto Inventário Nacional, tal como reportado pelo SIRENE.
+
+# Resultados
+
+A seguir são apresentados os resultados para metano e óxido nitroso.
+
+## Metano
+
+A figura abaixo apresenta a distribuição espacial das emissões totais de $CH_4$ no Brasil (em kt $CO_2e$, GWP100-AR5) para 2010, 2015 e 2020, obtidas da estimação do modelo MAgPIE, em versão *default*. Cada painel corresponde a um ano; cada célula do grid resulta da redistribuição das emissões regionais para nível de célula ponderada pela área de pastagem. A escala de cores (tons mais escuros = valores maiores) é comum aos três painéis, permitindo comparação visual entre anos. O mapa mostra o total do gás (soma das fontes), sem decomposição setorial, sobreposto aos limites de biomas. 
+
+```{r ch4, warning = FALSE, message = FALSE, fig.cap="Distribuição espacial de $CH_4$ (kt $CO_2e$, GWP100AR5) — 2010–2020.", fig.align='center'}
+
+# Uso da terra (pastagem como weight)
+x <- read.magpie("cell.land_0.5.mz")[,, "past"]
+x[is.na(x)] <- 0
+
+gas    <- "ch4"
+years  <- c(2010, 2015, 2020)
+yearS  <- fmt_year(years)                 # "y2010.y2010", ...
+ 
+# 1) Emissões por gás no nível regional (reg), em Mt gás
+emis_gas      <- Emissions(gdx = "fulldata.gdx", type = gas, level = "reg", unit = "GWP100AR5", cumulative = FALSE)
+emis_gas <- emis_gas[,c("y2010", "y2015", "y2020"),]
+
+# 2) Agrega de região -> célula usando seu mapa/weight
+dis_emis_gas  <- madrat::toolAggregate(emis_gas, map_file, x, from = "region", to = "cell")
+
+# 3) Para todos os 'pollutants' do gás, extrai BRA x anos e empilha
+ks <- magclass::getItems(dis_emis_gas, dim = 3)
+ks <- grep(paste0("\\.", gas, "$"), ks, value = TRUE) 
+
+dfs <- lapply(ks, function(k) mag_to_df(dis_emis_gas["BRA", yearS, k]))
+df_gas_total <- dplyr::bind_rows(dfs)
+
+# 4) Soma sobre as fontes para dar o total por célula/ano
+df_gas_sum <- aggregate(value ~ lon + lat + iso + year.start + year.end,
+                        data = df_gas_total, FUN = sum)
+
+# 5) Junta com grades BRA, aplica GWP (SAR) e prepara para grid
+df <- BRA |>
+  left_join(df_gas_sum, by = c("lon","lat","iso")) |>
+  mutate(kt_co2eq = mt_to_kt(value))
+
+df_map <- df |>
+  dplyr::select(lon, lat, year.end, value = kt_co2eq) |>
+  filter(is.finite(lon), is.finite(lat), is.finite(value))
+
+# 6) Rasteriza por ano e plota
+g_year <- gridify_by_year(df_map, bra_sf = bra)
+p_ch4  <- plot_faceted_map(g_year, bra, biomes, title = "CH4 - Brasil (kt CO2e, GWP100-AR5)")
+p_ch4
+```
+
+A figura abaixo mostra a distribuição espacial do $CH_4$ por fonte para 2020 (em kt CO₂e, GWP100-AR5), destacando as duas principais contribuições, de acordo com o MAgPIE, para o Brasil. Cada painel corresponde a uma fonte específica entre as que mais emitem no ano selecionado (por exemplo, fermentação entérica e manejo de dejetos/“AWMS”, conforme o retorno do modelo), com a mesma escala de cores nos painéis (tons mais escuros = emissões maiores).
+
+```{r source-ch4, warning = FALSE, message = FALSE, fig.cap="Distribuição espacial de $CH_4$ considerando as principais fontes de emissão (kt $CO_2e$, GWP100AR5) — 2020.", fig.align='center'}
+
+# Encontra top-2 (BRA, 2020)
+year_one <- fmt_year(2020)
+src_top2 <- top_k_sources(dis_emis_gas, country = "BRA", yearS = year_one, k = 2,
+                          pattern = paste0("\\.", gas, "$"))
+
+# Extrai, aplica GWP e rasteriza por fonte
+df_src <- lapply(src_top2, function(s) extract_one_source(dis_emis_gas, "BRA", year_one, s)) |>
+  dplyr::bind_rows() |>
+  mutate(kt_co2eq = mt_to_kt(value)) |>
+  transmute(lon, lat, source, value = kt_co2eq) |>
+  filter(is.finite(lon), is.finite(lat), is.finite(value))
+
+g_src <- split(df_src, df_src$source) |>
+  lapply(function(d) {
+    r  <- terra::rast(d[, c("lon","lat","value")], type = "xyz", crs = "EPSG:4326")
+    r  <- terra::crop(r, terra::vect(bra))
+    r  <- terra::mask(r, terra::vect(bra))
+    out <- as.data.frame(r, xy = TRUE, na.rm = TRUE)
+    names(out) <- c("lon","lat","value")
+    out$source <- unique(d$source)
+    out
+  }) |>
+  dplyr::bind_rows()
+
+labels_dict <- c(
+  "awms.ch4"     = "Manejo de dejetos animais",
+  "ent_ferm.ch4" = "Fermentação entérica",
+  "rice.ch4"     = "Arroz irrigado"
+)
+lab <- labels_dict[src_top2]; lab[is.na(lab)] <- src_top2[is.na(lab)]
+g_src$source <- factor(g_src$source, levels = src_top2, labels = lab)
+
+p_ch4_src <- plot_by_source(g_src, bra, biomes, title = "CH4 - Brasil (kt CO2e, GWP100-AR5) — principais fontes (2020)")
+p_ch4_src
+```
+
+A figura apresenta a comparação entre os totais de emissões de $CH_4$ no Brasil, conforme estimados pelo modelo MAgPIE em sua versão default (SSP2), e os valores oficiais reportados no Quarto Inventário Nacional de Emissões, para os anos de 2010, 2015 e 2020.
+
+```{r totais-ch4, warning=FALSE, message=FALSE, fig.cap="Totais de emissões de $CH_4$ no Brasil (kt $CO_2e$, GWP100-AR5) em 2010, 2015 e 2020, comparando os resultados do modelo MAgPIE (cenário default, SSP2) com os valores reportados pelo Quarto Inventário Nacional de Emissões (SIRENE).", fig.align='center'}
+# Totais CH4 Brasil a partir do MAgPIE (kt CO2e, AR5)
+magpie_br <- df_map |>
+  dplyr::mutate(year = as.integer(gsub("[^0-9]", "", year.end))) |>
+  dplyr::filter(year %in% c(2010, 2015, 2020)) |>
+  dplyr::group_by(year) |>
+  dplyr::summarise(value_kt = sum(value, na.rm = TRUE), .groups = "drop") |>
+  dplyr::mutate(source = "MAgPIE")
+
+# Totais CH4 Brasil do SIRENE
+sirene_br <- tibble::tibble(
+  year = c(2010, 2015, 2020),
+  value_kt = c(432565, 434079, 449829),
+  source = "SIRENE"
+)
+
+# Junta e plota
+df_comp <- dplyr::bind_rows(magpie_br, sirene_br)
+
+ggplot(df_comp, aes(x = factor(year), y = value_kt, fill = source)) +
+  geom_col(position = position_dodge(width = 0.8), width = 0.75) +
+  geom_text(aes(label = scales::comma(value_kt)),
+            position = position_dodge(width = 0.8),
+            vjust = -0.2, size = 3.5) +
+  scale_y_continuous(labels = scales::label_comma()) +
+  scale_fill_manual(values = c("MAgPIE" = pal_magpie[5], "SIRENE" = pal_magpie[15])) +
+  labs(
+    title = "CH4 — Brasil (kt CO2e, GWP100-AR5): MAgPIE vs. SIRENE)",
+    x = NULL, y = "kt CO2e",
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(legend.position = "top")
+```
+
+
+## Óxido Nitroso
+
+A figura abaixo apresenta a distribuição espacial das emissões totais de $N_2O$ no Brasil (em kt CO₂e, GWP100–AR5), conforme estimativas do modelo MAgPIE em sua configuração padrão (default) para os anos de 2010, 2015 e 2020. Diferentemente do caso das emissões de metano, cada célula do grid resulta da redistribuição das emissões regionais para o nível de célula, ponderada pela área de culturas agrícolas.
+
+De acordo com as estimativas do MAgPIE, a maior concentração das emissões de $N_2O$ está localizada principalmente na região Centro-Sul, abrangendo áreas dos estados de Mato Grosso do Sul, Paraná, São Paulo, Minas Gerais e parte de Goiás.
+
+```{r, warning = FALSE, message = FALSE, fig.cap="Distribuição espacial de $N_2O$ (kt $CO_2e$, GWP100AR5) — 2010–2020.", fig.align='center'}
+# Uso da terra (pastagem como weight)
+x <- read.magpie("cell.land_0.5.mz")[,, "crop"]
+x[is.na(x)] <- 0
+
+pal_magpie <- hcl.colors(20, "Reds", rev = TRUE)
+
+gas    <- "n2o"
+years  <- c(2010, 2015, 2020)
+yearS  <- fmt_year(years)                 # "y2010.y2010", ...
+
+# 1) Emissões por gás no nível regional (reg), em Mt gás
+emis_gas      <- Emissions(gdx = "fulldata.gdx", type = gas, level = "reg", unit = "GWP100AR5")
+emis_gas <- emis_gas[,c("y2010", "y2015", "y2020"),]
+
+# 2) Agrega de região -> célula usando seu mapa/weight
+dis_emis_gas  <- madrat::toolAggregate(emis_gas, map_file, x, from = "region", to = "cell")
+
+# 3) Para todos os 'pollutants' do gás, extrai BRA x anos e empilha
+ks <- magclass::getItems(dis_emis_gas, dim = 3)
+ks <- grep(paste0("\\.", gas, "$"), ks, value = TRUE) 
+
+dfs_n <- lapply(ks, function(k) mag_to_df(dis_emis_gas["BRA", yearS, k]))
+df_gas_total <- dplyr::bind_rows(dfs_n)
+
+# 4) Soma sobre as fontes para dar o total por célula/ano
+df_gas_sum <- aggregate(value ~ lon + lat + iso + year.start + year.end,
+                        data = df_gas_total, FUN = sum)
+
+# 5) Junta com grades BRA, aplica GWP (SAR) e prepara para grid
+df_n2o <- BRA |>
+  left_join(df_gas_sum, by = c("lon","lat","iso")) |>
+  mutate(kt_co2eq = mt_to_kt(value))
+
+df_map_n2o <- df_n2o |>
+  dplyr::select(lon, lat, year.end, value = kt_co2eq) |>
+  filter(is.finite(lon), is.finite(lat), is.finite(value))
+
+# 6) Rasteriza por ano e plota
+g_year_n2o <- gridify_by_year(df_map_n2o, bra_sf = bra)
+p_n2o  <- plot_faceted_map(g_year_n2o, bra, biomes, title = "N2O - Brasil (kt CO2e, GWP100-AR5")
+p_n2o
+```
+
+O modelo incorpora múltiplas fontes de $N_2O$ (33 fontes), incluindo: matéria orgânica do solo, fertilizantes inorgânicos e esterco aplicados em lavouras e pastagens, manejo de resíduos animais, decomposição e queima de resíduos agrícolas, cultivo de arroz, além de óxido nitroso proveniente de carbono vegetal, serapilheira e outras vegetações, *etc*. 
+
+A figura a seguir apresenta a distribuição espacial do $N_2O$ no Brasil em 2020 (kt CO2e, GWP100-AR5), considerando as duas principais fontes de emissão segundo o modelo MAgPIE: **esterco em pastagens** e **manejo de dejetos animais**. De acordo com as estimativas, em 2020, o Brasil teria emitido 113.298,6 ktCO_2e de óxido nitroso. Deste total, 26% são atribuídos ao esterco em pastagens e 20% ao manejo de dejetos animais.
+
+As bases de dados utilizadas incluem FAO, Associação Internacional de Fertilizantes (IFA) e literatura científica especializada, com detalhes metodológicos descritos em Bodirsky et al. (2012).
+
+```{r, warning=FALSE, message=FALSE,  fig.cap="Distribuição espacial de $N_2O$ considerando as principais fontes de emissão (kt $CO_2e$, GWP100AR5) — 2020.", fig.align='center'}
+# Encontra top-2 n2o (BRA, 2020)
+year_one_n <- fmt_year(2020)
+src_top2_n <- top_k_sources(dis_emis_gas, country = "BRA", yearS = year_one_n, k = 2,
+                          pattern = paste0("\\.", gas, "$"))
+
+# Extrai, aplica GWP e rasteriza por fonte
+df_src_n <- lapply(src_top2_n, function(s) extract_one_source(dis_emis_gas, "BRA", 
+                                                              year_one_n, s)) |>
+  dplyr::bind_rows() |>
+  mutate(kt_co2eq = mt_to_kt(value)) |>
+  transmute(lon, lat, source, value = kt_co2eq) |>
+  filter(is.finite(lon), is.finite(lat), is.finite(value))
+
+g_src_n <- split(df_src_n, df_src_n$source) |>
+  lapply(function(d) {
+    r  <- terra::rast(d[, c("lon","lat","value")], type = "xyz", crs = "EPSG:4326")
+    r  <- terra::crop(r, terra::vect(bra))
+    r  <- terra::mask(r, terra::vect(bra))
+    out <- as.data.frame(r, xy = TRUE, na.rm = TRUE)
+    names(out) <- c("lon","lat","value")
+    out$source <- unique(d$source)
+    out
+  }) |>
+  dplyr::bind_rows()
+
+labels_dict <- c(
+  "man_past.n2o" = "Esterco em pastagens",
+  "awms.n2o"  = "Manejo de dejetos animais"
+  )
+
+lab <- labels_dict[src_top2_n]; lab[is.na(lab)] <- src_top2_n[is.na(lab)]
+g_src_n$source <- factor(g_src_n$source, levels = src_top2_n, labels = lab)
+
+p_n2o_src <- plot_by_source(g_src_n, bra, biomes, title = "N2O - Brasil (kt CO2e, GWP100-AR5) - principais fontes (2020)")
+p_n2o_src
+```
+
+
+A figura compara os totais de emissão de $N_2O$ no Brasil estimados pelo modelo MAgPIE (versão default, $SSP2$) com os valores oficiais do Quarto Inventário Nacional de Emissões para os anos de 2010, 2015 e 2020. De modo geral, as estimativas ficaram relativamente próximas. Contudo, é importante considerar que a desagregação das atividades relacionadas às emissões são feitas de formas distintas, o que pode levar a conclusões também distintas quanto às principais fontes de emissões.
+
+No SIRENE, dentro do setor agropecuário, a principal fonte de emissão é o manejo de solos agrícolas, que inclui fertilizantes sintéticos, adubos orgânicos, deposição direta de dejetos, resíduos agrícolas, mineralização de nitrogênio associada à perda de carbono do solo e manejo de solos orgânicos. O esterco em pastagens, identificado pelo MAgPIE como uma das principais fontes, está incluído nesse agrupamento.
+
+
+As bases de dados e referências utilizadas pelo MAgPIE e pelo SIRENE diferem significativamente, embora ambos adotem fatores de emissão conforme as diretrizes do IPCC (2006).
+
+
+```{r, warning = FALSE, message = FALSE, fig.cap="Totais de emissões de $N_2O$ no Brasil (kt $CO_2e$, GWP100-AR5) em 2010, 2015 e 2020, comparando os resultados do modelo MAgPIE (cenário default, SSP2) com os valores reportados pelo Quarto Inventário Nacional de Emissões (SIRENE).", fig.align='center'}
+# Totais N20 Brasil a partir do MAgPIE (kt CO2e, AR5)
+magpie_br_n <- df_map_n2o |>
+  dplyr::mutate(year = as.integer(gsub("[^0-9]", "", year.end))) |>
+  dplyr::filter(year %in% c(2010, 2015, 2020)) |>
+  dplyr::group_by(year) |>
+  dplyr::summarise(value_kt = sum(value, na.rm = TRUE), .groups = "drop") |>
+  dplyr::mutate(source = "MAgPIE")
+
+# Totais N2O Brasil do SIRENE
+sirene_br_n <- tibble::tibble(
+  year = c(2010, 2015, 2020),
+  value_kt = c(130140,  140231,  156306), # excluir, energia, Resíduos, processos industriais
+  source = "SIRENE"
+  )
+
+# Junta e plota
+df_comp_n <- dplyr::bind_rows(magpie_br_n, sirene_br_n)
+
+ggplot(df_comp_n, aes(x = factor(year), y = value_kt, fill = source)) +
+  geom_col(position = position_dodge(width = 0.8), width = 0.75) +
+  geom_text(aes(label = scales::comma(value_kt)),
+            position = position_dodge(width = 0.8),
+            vjust = -0.2, size = 3.5) +
+  scale_y_continuous(labels = scales::label_comma()) +
+  scale_fill_manual(values = c("MAgPIE" = pal_magpie[5], "SIRENE" = pal_magpie[15])) +
+  labs(
+    title = "N20 - Brasil (kt CO2e, GWP100-AR5): MAgPIE vs. SIRENE",
+    x = NULL, y = "kt CO2e",
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(legend.position = "top")
+```
+

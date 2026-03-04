@@ -1,0 +1,700 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+\documentclass[
+]{article}
+\usepackage{xcolor}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math} % this also loads fontspec
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else
+  % xetex/luatex font selection
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{graphicx}
+\makeatletter
+\newsavebox\pandoc@box
+\newcommand*\pandocbounded[1]{% scales image to fit in text height/width
+  \sbox\pandoc@box{#1}%
+  \Gscale@div\@tempa{\textheight}{\dimexpr\ht\pandoc@box+\dp\pandoc@box\relax}%
+  \Gscale@div\@tempb{\linewidth}{\wd\pandoc@box}%
+  \ifdim\@tempb\p@<\@tempa\p@\let\@tempa\@tempb\fi% select the smaller of both
+  \ifdim\@tempa\p@<\p@\scalebox{\@tempa}{\usebox\pandoc@box}%
+  \else\usebox{\pandoc@box}%
+  \fi%
+}
+% Set default figure placement to htbp
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\usepackage{bookmark}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same}
+\hypersetup{
+  pdftitle={Relatório Técnico: Cenários de Estimativas de Emissões de GEE no Brasil com o Modelo MAgPIE},
+  pdfauthor={Fernanda Valente, Sabrina de Matos Carlos, Cícero Lima, Ângelo Gurgel},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+
+\title{Relatório Técnico: Cenários de Estimativas de Emissões de GEE no
+Brasil com o Modelo MAgPIE}
+\author{Fernanda Valente, Sabrina de Matos Carlos, Cícero Lima, Ângelo
+Gurgel}
+\date{2026-03-03}
+
+\begin{document}
+\maketitle
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Opções globais dos chunks}
+\NormalTok{knitr}\SpecialCharTok{::}\NormalTok{opts\_chunk}\SpecialCharTok{$}\FunctionTok{set}\NormalTok{(}\AttributeTok{warning =} \ConstantTok{FALSE}\NormalTok{, }\AttributeTok{message =} \ConstantTok{FALSE}\NormalTok{, }\AttributeTok{fig.width =} \DecValTok{12}\NormalTok{, }\AttributeTok{fig.height =} \DecValTok{6}\NormalTok{, }\AttributeTok{out.width =} \StringTok{"100\%"}\NormalTok{)}
+
+\CommentTok{\# Pacotes}
+\FunctionTok{library}\NormalTok{(sf); }\FunctionTok{library}\NormalTok{(sp); }\FunctionTok{library}\NormalTok{(dplyr); }\FunctionTok{library}\NormalTok{(raster)}
+\FunctionTok{library}\NormalTok{(madrat); }\FunctionTok{library}\NormalTok{(magclass); }\FunctionTok{library}\NormalTok{(magpie4); }\FunctionTok{library}\NormalTok{(luplot); }\FunctionTok{library}\NormalTok{(gdx2)}
+\FunctionTok{library}\NormalTok{(terra); }\FunctionTok{library}\NormalTok{(ggplot2); }\FunctionTok{library}\NormalTok{(scales); }\FunctionTok{library}\NormalTok{(geobr); }\FunctionTok{library}\NormalTok{(rmdformats)}
+
+\CommentTok{\# Paleta padrão para mapas}
+\NormalTok{pal\_magpie }\OtherTok{\textless{}{-}} \FunctionTok{hcl.colors}\NormalTok{(}\DecValTok{20}\NormalTok{, }\StringTok{"YlOrBr"}\NormalTok{, }\AttributeTok{rev =} \ConstantTok{TRUE}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Mapa de clusters e filtro BRA com lon/lat numéricos}
+\NormalTok{map\_file }\OtherTok{\textless{}{-}} \FunctionTok{readRDS}\NormalTok{(}\StringTok{"clustermap\_rev4.121\_c200\_67420\_h12.rds"}\NormalTok{)}
+
+\NormalTok{BRA }\OtherTok{\textless{}{-}} \FunctionTok{subset}\NormalTok{(map\_file, country }\SpecialCharTok{==} \StringTok{"BRA"}\NormalTok{)}
+\NormalTok{coords }\OtherTok{\textless{}{-}} \FunctionTok{strsplit}\NormalTok{(BRA}\SpecialCharTok{$}\NormalTok{cell, }\StringTok{"}\SpecialCharTok{\textbackslash{}\textbackslash{}}\StringTok{."}\NormalTok{)}
+\NormalTok{mat }\OtherTok{\textless{}{-}} \FunctionTok{do.call}\NormalTok{(rbind, coords)}
+\NormalTok{BRA}\SpecialCharTok{$}\NormalTok{lon }\OtherTok{\textless{}{-}} \FunctionTok{as.numeric}\NormalTok{(}\FunctionTok{gsub}\NormalTok{(}\StringTok{"p"}\NormalTok{, }\StringTok{"."}\NormalTok{, mat[,}\DecValTok{1}\NormalTok{]))}
+\NormalTok{BRA}\SpecialCharTok{$}\NormalTok{lat }\OtherTok{\textless{}{-}} \FunctionTok{as.numeric}\NormalTok{(}\FunctionTok{gsub}\NormalTok{(}\StringTok{"p"}\NormalTok{, }\StringTok{"."}\NormalTok{, mat[,}\DecValTok{2}\NormalTok{]))}
+\NormalTok{BRA}\SpecialCharTok{$}\NormalTok{iso }\OtherTok{\textless{}{-}}\NormalTok{ mat[,}\DecValTok{3}\NormalTok{]}
+
+\CommentTok{\# Shapes}
+\NormalTok{bra    }\OtherTok{\textless{}{-}}\NormalTok{ geobr}\SpecialCharTok{::}\FunctionTok{read\_country}\NormalTok{(}\AttributeTok{showProgress =} \ConstantTok{FALSE}\NormalTok{) }\SpecialCharTok{|\textgreater{}} \FunctionTok{st\_transform}\NormalTok{(}\DecValTok{4326}\NormalTok{)}
+\NormalTok{biomes }\OtherTok{\textless{}{-}}\NormalTok{ geobr}\SpecialCharTok{::}\FunctionTok{read\_biomes}\NormalTok{(}\AttributeTok{showProgress =} \ConstantTok{FALSE}\NormalTok{)  }\SpecialCharTok{|\textgreater{}} \FunctionTok{st\_transform}\NormalTok{(}\DecValTok{4326}\NormalTok{)}
+\NormalTok{state }\OtherTok{\textless{}{-}}\NormalTok{ geobr}\SpecialCharTok{::}\FunctionTok{read\_state}\NormalTok{(}\AttributeTok{showProgress =} \ConstantTok{FALSE}\NormalTok{) }\SpecialCharTok{|\textgreater{}} \FunctionTok{st\_transform}\NormalTok{(}\DecValTok{4326}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Formata "2010" {-}\textgreater{} "y2010.y2010"}
+\NormalTok{fmt\_year }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(y) }\FunctionTok{paste0}\NormalTok{(}\StringTok{"y"}\NormalTok{, y, }\StringTok{".y"}\NormalTok{, y)}
+
+\CommentTok{\# Converte magclass {-}\textgreater{} data.frame com nomes consistentes}
+\NormalTok{mag\_to\_df }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(obj) \{}
+\NormalTok{  df }\OtherTok{\textless{}{-}} \FunctionTok{as.data.frame}\NormalTok{(obj, }\AttributeTok{rev =} \DecValTok{2}\NormalTok{)}
+  \FunctionTok{names}\NormalTok{(df) }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{"lon"}\NormalTok{, }\StringTok{"lat"}\NormalTok{, }\StringTok{"iso"}\NormalTok{, }\StringTok{"year.start"}\NormalTok{, }\StringTok{"year.end"}\NormalTok{, }\StringTok{"emis\_source"}\NormalTok{, }\StringTok{"pollutants"}\NormalTok{, }\StringTok{"value"}\NormalTok{)}
+\NormalTok{  df}
+\NormalTok{\}}
+
+\CommentTok{\# GWP (SAR 100y) padronizado}
+\NormalTok{gwp\_sar }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\AttributeTok{co2 =} \DecValTok{1}\NormalTok{, }\AttributeTok{ch4 =} \DecValTok{21}\NormalTok{, }\AttributeTok{n2o =} \DecValTok{310}\NormalTok{)}
+
+\NormalTok{mt\_to\_Gg }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(x) x }\SpecialCharTok{*} \DecValTok{1000}
+\NormalTok{mt\_to\_kt }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(x) x }\SpecialCharTok{*} \DecValTok{1000}
+
+\CommentTok{\# Aplica GWP e converte para Gg CO2e/ano}
+\NormalTok{apply\_gwp }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(df, }\AttributeTok{gas =} \StringTok{"ch4"}\NormalTok{, }\AttributeTok{gwp\_table =}\NormalTok{ gwp\_sar) \{}
+\NormalTok{  g }\OtherTok{\textless{}{-}} \FunctionTok{tolower}\NormalTok{(gas)}
+  \ControlFlowTok{if}\NormalTok{ (}\SpecialCharTok{!}\NormalTok{g }\SpecialCharTok{\%in\%} \FunctionTok{names}\NormalTok{(gwp\_table)) }\FunctionTok{stop}\NormalTok{(}\StringTok{"Gás não encontrado na tabela de GWP."}\NormalTok{)}
+\NormalTok{  df }\SpecialCharTok{|\textgreater{}}
+    \FunctionTok{mutate}\NormalTok{(}\AttributeTok{value\_co2e =}\NormalTok{ value }\SpecialCharTok{*}\NormalTok{ gwp\_table[[g]])}
+\NormalTok{\}}
+
+\CommentTok{\# Rasteriza um data.frame (lon,lat,value) e retorna grid por ano (lista empilhada)}
+\NormalTok{gridify\_by\_year }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(d, bra\_sf) \{}
+  \FunctionTok{split}\NormalTok{(d, d}\SpecialCharTok{$}\NormalTok{year.end) }\SpecialCharTok{|\textgreater{}}
+    \FunctionTok{lapply}\NormalTok{(}\ControlFlowTok{function}\NormalTok{(x) \{}
+\NormalTok{      r  }\OtherTok{\textless{}{-}}\NormalTok{ terra}\SpecialCharTok{::}\FunctionTok{rast}\NormalTok{(x[, }\FunctionTok{c}\NormalTok{(}\StringTok{"lon"}\NormalTok{,}\StringTok{"lat"}\NormalTok{,}\StringTok{"value"}\NormalTok{)], }\AttributeTok{type =} \StringTok{"xyz"}\NormalTok{, }\AttributeTok{crs =} \StringTok{"EPSG:4326"}\NormalTok{)}
+\NormalTok{      r  }\OtherTok{\textless{}{-}}\NormalTok{ terra}\SpecialCharTok{::}\FunctionTok{crop}\NormalTok{(r, terra}\SpecialCharTok{::}\FunctionTok{vect}\NormalTok{(bra\_sf))}
+\NormalTok{      r  }\OtherTok{\textless{}{-}}\NormalTok{ terra}\SpecialCharTok{::}\FunctionTok{mask}\NormalTok{(r, terra}\SpecialCharTok{::}\FunctionTok{vect}\NormalTok{(bra\_sf))}
+\NormalTok{      gd }\OtherTok{\textless{}{-}} \FunctionTok{as.data.frame}\NormalTok{(r, }\AttributeTok{xy =} \ConstantTok{TRUE}\NormalTok{, }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{)}
+      \FunctionTok{names}\NormalTok{(gd) }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{"lon"}\NormalTok{,}\StringTok{"lat"}\NormalTok{,}\StringTok{"value"}\NormalTok{)}
+\NormalTok{      gd}\SpecialCharTok{$}\NormalTok{year.end }\OtherTok{\textless{}{-}} \FunctionTok{unique}\NormalTok{(x}\SpecialCharTok{$}\NormalTok{year.end)}
+\NormalTok{      gd}
+\NormalTok{    \}) }\SpecialCharTok{|\textgreater{}}
+\NormalTok{    dplyr}\SpecialCharTok{::}\FunctionTok{bind\_rows}\NormalTok{()}
+\NormalTok{\}}
+
+\CommentTok{\# Soma total por fonte em um recorte (country, yearS) e retorna top{-}k nomes (dim k do magclass)}
+\NormalTok{top\_k\_sources }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(dis\_obj, }\AttributeTok{country =} \StringTok{"BRA"}\NormalTok{, yearS, }\AttributeTok{k =} \DecValTok{2}\NormalTok{, }\AttributeTok{pattern =} \ConstantTok{NULL}\NormalTok{) \{}
+\NormalTok{  ks }\OtherTok{\textless{}{-}}\NormalTok{ magclass}\SpecialCharTok{::}\FunctionTok{getItems}\NormalTok{(dis\_obj, }\AttributeTok{dim =} \DecValTok{3}\NormalTok{)}
+  \ControlFlowTok{if}\NormalTok{ (}\SpecialCharTok{!}\FunctionTok{is.null}\NormalTok{(pattern)) ks }\OtherTok{\textless{}{-}} \FunctionTok{grep}\NormalTok{(pattern, ks, }\AttributeTok{value =} \ConstantTok{TRUE}\NormalTok{)}
+\NormalTok{  totals }\OtherTok{\textless{}{-}} \FunctionTok{sapply}\NormalTok{(ks, }\ControlFlowTok{function}\NormalTok{(p) }\FunctionTok{sum}\NormalTok{(}\FunctionTok{as.numeric}\NormalTok{(dis\_obj[country, yearS, p]), }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{))}
+\NormalTok{  totals }\OtherTok{\textless{}{-}}\NormalTok{ totals[totals }\SpecialCharTok{\textgreater{}} \DecValTok{0}\NormalTok{]}
+  \FunctionTok{names}\NormalTok{(}\FunctionTok{sort}\NormalTok{(totals, }\AttributeTok{decreasing =} \ConstantTok{TRUE}\NormalTok{))[}\FunctionTok{seq\_len}\NormalTok{(}\FunctionTok{min}\NormalTok{(k, }\FunctionTok{length}\NormalTok{(totals)))]}
+\NormalTok{\}}
+
+\CommentTok{\# Extrai uma fonte específica e devolve df com lon/lat/iso/anos/value (Mt gás), mais \textquotesingle{}source\textquotesingle{}}
+\NormalTok{extract\_one\_source }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(dis\_obj, country, yearS, src) \{}
+\NormalTok{  obj }\OtherTok{\textless{}{-}}\NormalTok{ dis\_obj[country, yearS, src]}
+\NormalTok{  d   }\OtherTok{\textless{}{-}} \FunctionTok{mag\_to\_df}\NormalTok{(obj)}
+\NormalTok{  d}\SpecialCharTok{$}\NormalTok{lon   }\OtherTok{\textless{}{-}} \FunctionTok{as.numeric}\NormalTok{(}\FunctionTok{gsub}\NormalTok{(}\StringTok{"p"}\NormalTok{, }\StringTok{"."}\NormalTok{, d}\SpecialCharTok{$}\NormalTok{lon))}
+\NormalTok{  d}\SpecialCharTok{$}\NormalTok{lat   }\OtherTok{\textless{}{-}} \FunctionTok{as.numeric}\NormalTok{(}\FunctionTok{gsub}\NormalTok{(}\StringTok{"p"}\NormalTok{, }\StringTok{"."}\NormalTok{, d}\SpecialCharTok{$}\NormalTok{lat))}
+\NormalTok{  d}\SpecialCharTok{$}\NormalTok{source }\OtherTok{\textless{}{-}}\NormalTok{ src}
+\NormalTok{  d}
+\NormalTok{\}}
+
+\CommentTok{\# Figura de mapa facetado por ano}
+\NormalTok{plot\_faceted\_map }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(gdf, bra\_sf, biomes\_sf, title, }\AttributeTok{fill\_lab =} \StringTok{"kt CO2e"}\NormalTok{, }\AttributeTok{pal =}\NormalTok{ pal\_magpie) \{}
+  \FunctionTok{ggplot}\NormalTok{() }\SpecialCharTok{+}
+    \FunctionTok{geom\_raster}\NormalTok{(}\AttributeTok{data =}\NormalTok{ gdf, }\FunctionTok{aes}\NormalTok{(lon, lat, }\AttributeTok{fill =}\NormalTok{ value)) }\SpecialCharTok{+}
+    \FunctionTok{geom\_sf}\NormalTok{(}\AttributeTok{data =}\NormalTok{ biomes\_sf, }\AttributeTok{fill =} \ConstantTok{NA}\NormalTok{, }\AttributeTok{color =} \StringTok{"grey35"}\NormalTok{, }\AttributeTok{linewidth =} \FloatTok{0.25}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{geom\_sf}\NormalTok{(}\AttributeTok{data =}\NormalTok{ bra\_sf,    }\AttributeTok{fill =} \ConstantTok{NA}\NormalTok{, }\AttributeTok{color =} \StringTok{"grey15"}\NormalTok{, }\AttributeTok{linewidth =} \FloatTok{0.4}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{coord\_sf}\NormalTok{(}\AttributeTok{xlim =} \FunctionTok{c}\NormalTok{(}\SpecialCharTok{{-}}\DecValTok{74}\NormalTok{, }\SpecialCharTok{{-}}\DecValTok{34}\NormalTok{), }\AttributeTok{ylim =} \FunctionTok{c}\NormalTok{(}\SpecialCharTok{{-}}\DecValTok{34}\NormalTok{, }\DecValTok{6}\NormalTok{), }\AttributeTok{expand =} \ConstantTok{FALSE}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{facet\_wrap}\NormalTok{(}\SpecialCharTok{\textasciitilde{}}\NormalTok{ year.end) }\SpecialCharTok{+}
+    \FunctionTok{scale\_fill\_gradientn}\NormalTok{(}\AttributeTok{colors =}\NormalTok{ pal, }\AttributeTok{name =}\NormalTok{ fill\_lab) }\SpecialCharTok{+}
+    \FunctionTok{labs}\NormalTok{(}\AttributeTok{title =}\NormalTok{ title, }\AttributeTok{caption =} \StringTok{"Source: MAgPIE / Default version (SSP2)"}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{theme\_minimal}\NormalTok{(}\AttributeTok{base\_size =} \DecValTok{12}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{theme}\NormalTok{(}
+      \AttributeTok{legend.position =} \StringTok{"right"}\NormalTok{,}
+      \AttributeTok{panel.grid      =} \FunctionTok{element\_blank}\NormalTok{(),}
+      \AttributeTok{plot.title      =} \FunctionTok{element\_text}\NormalTok{(}\AttributeTok{face =} \StringTok{"bold"}\NormalTok{, }\AttributeTok{size =} \DecValTok{26}\NormalTok{, }\AttributeTok{hjust =} \DecValTok{0}\NormalTok{)}
+\NormalTok{    )}
+\NormalTok{\}}
+
+\CommentTok{\# Mapa facetado por fonte (num único ano)}
+\NormalTok{plot\_by\_source }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(gdf, bra\_sf, biomes\_sf, title, }\AttributeTok{fill\_lab =} \StringTok{"kt CO2e"}\NormalTok{, }\AttributeTok{pal =}\NormalTok{ pal\_magpie, }\AttributeTok{ncol =} \DecValTok{2}\NormalTok{) \{}
+  \FunctionTok{ggplot}\NormalTok{() }\SpecialCharTok{+}
+    \FunctionTok{geom\_raster}\NormalTok{(}\AttributeTok{data =}\NormalTok{ gdf, }\FunctionTok{aes}\NormalTok{(lon, lat, }\AttributeTok{fill =}\NormalTok{ value)) }\SpecialCharTok{+}
+    \FunctionTok{geom\_sf}\NormalTok{(}\AttributeTok{data =}\NormalTok{ biomes\_sf, }\AttributeTok{fill =} \ConstantTok{NA}\NormalTok{, }\AttributeTok{color =} \StringTok{"grey35"}\NormalTok{, }\AttributeTok{linewidth =} \FloatTok{0.25}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{geom\_sf}\NormalTok{(}\AttributeTok{data =}\NormalTok{ bra\_sf,    }\AttributeTok{fill =} \ConstantTok{NA}\NormalTok{, }\AttributeTok{color =} \StringTok{"grey15"}\NormalTok{, }\AttributeTok{linewidth =} \FloatTok{0.4}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{coord\_sf}\NormalTok{(}\AttributeTok{xlim =} \FunctionTok{c}\NormalTok{(}\SpecialCharTok{{-}}\DecValTok{74}\NormalTok{, }\SpecialCharTok{{-}}\DecValTok{34}\NormalTok{), }\AttributeTok{ylim =} \FunctionTok{c}\NormalTok{(}\SpecialCharTok{{-}}\DecValTok{34}\NormalTok{, }\DecValTok{6}\NormalTok{), }\AttributeTok{expand =} \ConstantTok{FALSE}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{facet\_wrap}\NormalTok{(}\SpecialCharTok{\textasciitilde{}}\NormalTok{ source, }\AttributeTok{ncol =}\NormalTok{ ncol) }\SpecialCharTok{+}
+    \FunctionTok{scale\_fill\_gradientn}\NormalTok{(}\AttributeTok{colors =}\NormalTok{ pal, }\AttributeTok{name =}\NormalTok{ fill\_lab) }\SpecialCharTok{+}
+    \FunctionTok{labs}\NormalTok{(}\AttributeTok{title =}\NormalTok{ title, }\AttributeTok{caption =} \StringTok{"Source: MAgPIE / Default version (SSP2)"}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{theme\_minimal}\NormalTok{(}\AttributeTok{base\_size =} \DecValTok{12}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{theme}\NormalTok{(}
+      \AttributeTok{legend.position =} \StringTok{"right"}\NormalTok{,}
+      \AttributeTok{panel.grid      =} \FunctionTok{element\_blank}\NormalTok{(),}
+      \AttributeTok{plot.title      =} \FunctionTok{element\_text}\NormalTok{(}\AttributeTok{face =} \StringTok{"bold"}\NormalTok{, }\AttributeTok{size =} \DecValTok{22}\NormalTok{)}
+\NormalTok{    )}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\section{Introdução}\label{introduuxe7uxe3o}
+
+A aplicação de modelos globais de uso da terra e emissões em contextos
+nacionais exige cautela, dado que cada país apresenta dinâmicas próprias
+em termos de atividades produtivas, estrutura fundiária, biomas e
+padrões de emissões. No caso do Brasil, marcado por forte presença do
+setor agropecuário e pela diversidade de ecossistemas, a incorporação
+dessas especificidades é fundamental para garantir a consistência das
+análises.
+
+O MAgPIE (Model of Agricultural Production and its Impact on the
+Environment) é um modelo global de equilíbrio parcial amplamente
+utilizado para simular interações entre uso da terra, produção
+agropecuária, comércio internacional e emissões de gases de efeito
+estufa (GEE). Entretanto, sua configuração padrão (default) não
+contempla ajustes específicos para a realidade brasileira, o que levanta
+a necessidade de avaliar em que medida os resultados obtidos se
+aproximam dos valores reportados oficialmente.
+
+Neste relatório, busca-se avaliar a aderência do MAgPIE, em sua
+configuração padrão (cenário SSP2), aos dados de emissões
+disponibilizados pelo Brasil em seus inventários nacionais de GEE. A
+análise concentra-se nos principais gases associados ao setor
+agropecuário e ao uso da terra (metano (\(CH_4\)), óxido nitroso
+(\(N_2 O\)) e dióxido de carbono (\(CO_2\))) para os anos de 2010, 2015
+e 2020, conforme reportado no Quarto Inventário Nacional de Emissões e
+Remoções Antrópicas, submetido à Convenção-Quadro das Nações Unidas
+sobre Mudança do Clima (UNFCCC).
+
+A comparação tem como objetivo compreender a proximidade entre as
+trajetórias simuladas pelo modelo e os dados observados, destacando
+potenciais divergências e padrões espaciais relevantes. A partir disso,
+pretende-se identificar caminhos para ajustes metodológicos que possam
+aprimorar a utilização do MAgPIE no contexto brasileiro, garantindo
+maior aderência às especificidades nacionais e maior robustez nas
+análises futuras.
+
+\section{Métodos}\label{muxe9todos}
+
+Para a obtenção dos resultados apresentados a seguir, o MAgPIE foi
+executado no cenário default (SSP2), e utilizado o arquivo GDX gerado
+(\texttt{fulldata.gdx}) como base para a análise. A extração no R foi
+feita com as funções disponibilizadas pelo pacote \emph{magpie4}, em
+especial a função \texttt{Emissions()}, que permite recuperar
+diretamente do GDX as emissões de gases de efeito estufa por tipo de
+gás, nível de agregação e unidade. Essa função retorna um objeto no
+formato \texttt{magclass}, no qual as dimensões correspondem a regiões,
+períodos de tempo e fontes de emissão. No caso deste relatório, o
+parâmetro \texttt{type} foi definido de acordo com o gás de interesse
+(\texttt{"ch4"}, \texttt{"n2o"}, \texttt{"co2"}), o parâmetro level foi
+configurado como \texttt{"reg"} (nível regional do MAgPIE) e a unidade
+escolhida foi \texttt{"GWP100AR5"}, garantindo comparabilidade com os
+valores oficiais do Inventário Nacional, já que nesse caso as emissões
+são reportadas em \(CO_2\) equivalente (\(CO_2e\)) conforme os fatores
+de equivalência de 100 anos do AR5.
+
+A partir dessa extração em nível regional, foi necessário redistribuir
+os resultados para nível de célula, sendo 2901 células no território
+brasileiro. Essa conversão foi feita com a função
+\texttt{toolAggregate()} do pacote \emph{madrat}, que utiliza um mapa de
+relação entre regiões e células, combinado com um peso espacial. Neste
+relatório, a variável escolhida como peso foi a área de pastagem, de
+forma a refletir a distribuição espacial das emissões agropecuárias.
+
+Na dimensão das categorias de emissão, a estrutura do MAgPIE diferencia
+as fontes por pares \texttt{fonte.gás} (por exemplo,
+\texttt{ent\_ferm.ch4} para fermentação entérica, \texttt{awms.ch4} para
+manejo de dejetos animais, ou \texttt{rice.ch4} para arroz irrigado).
+Essa organização permitiu tanto a soma das emissões para obter o total
+de cada gás quanto a decomposição por principais fontes. Além disso, ao
+aplicar uma conversão de megatoneladas (Mt) para quilotoneladas (kt), os
+resultados foram ajustados permitindo que fossem comparados diretamente
+aos valores observados do Quarto Inventário Nacional, tal como reportado
+pelo SIRENE.
+
+\section{Resultados}\label{resultados}
+
+A seguir são apresentados os resultados para metano e óxido nitroso.
+
+\subsection{Metano}\label{metano}
+
+A figura abaixo apresenta a distribuição espacial das emissões totais de
+\(CH_4\) no Brasil (em kt \(CO_2e\), GWP100-AR5) para 2010, 2015 e 2020,
+obtidas da estimação do modelo MAgPIE, em versão \emph{default}. Cada
+painel corresponde a um ano; cada célula do grid resulta da
+redistribuição das emissões regionais para nível de célula ponderada
+pela área de pastagem. A escala de cores (tons mais escuros = valores
+maiores) é comum aos três painéis, permitindo comparação visual entre
+anos. O mapa mostra o total do gás (soma das fontes), sem decomposição
+setorial, sobreposto aos limites de biomas.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Uso da terra (pastagem como weight)}
+\NormalTok{x }\OtherTok{\textless{}{-}} \FunctionTok{read.magpie}\NormalTok{(}\StringTok{"cell.land\_0.5.mz"}\NormalTok{)[,, }\StringTok{"past"}\NormalTok{]}
+\NormalTok{x[}\FunctionTok{is.na}\NormalTok{(x)] }\OtherTok{\textless{}{-}} \DecValTok{0}
+
+\NormalTok{gas    }\OtherTok{\textless{}{-}} \StringTok{"ch4"}
+\NormalTok{years  }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\DecValTok{2010}\NormalTok{, }\DecValTok{2015}\NormalTok{, }\DecValTok{2020}\NormalTok{)}
+\NormalTok{yearS  }\OtherTok{\textless{}{-}} \FunctionTok{fmt\_year}\NormalTok{(years)                 }\CommentTok{\# "y2010.y2010", ...}
+ 
+\CommentTok{\# 1) Emissões por gás no nível regional (reg), em Mt gás}
+\NormalTok{emis\_gas      }\OtherTok{\textless{}{-}} \FunctionTok{Emissions}\NormalTok{(}\AttributeTok{gdx =} \StringTok{"fulldata.gdx"}\NormalTok{, }\AttributeTok{type =}\NormalTok{ gas, }\AttributeTok{level =} \StringTok{"reg"}\NormalTok{, }\AttributeTok{unit =} \StringTok{"GWP100AR5"}\NormalTok{, }\AttributeTok{cumulative =} \ConstantTok{FALSE}\NormalTok{)}
+\NormalTok{emis\_gas }\OtherTok{\textless{}{-}}\NormalTok{ emis\_gas[,}\FunctionTok{c}\NormalTok{(}\StringTok{"y2010"}\NormalTok{, }\StringTok{"y2015"}\NormalTok{, }\StringTok{"y2020"}\NormalTok{),]}
+
+\CommentTok{\# 2) Agrega de região {-}\textgreater{} célula usando seu mapa/weight}
+\NormalTok{dis\_emis\_gas  }\OtherTok{\textless{}{-}}\NormalTok{ madrat}\SpecialCharTok{::}\FunctionTok{toolAggregate}\NormalTok{(emis\_gas, map\_file, x, }\AttributeTok{from =} \StringTok{"region"}\NormalTok{, }\AttributeTok{to =} \StringTok{"cell"}\NormalTok{)}
+
+\CommentTok{\# 3) Para todos os \textquotesingle{}pollutants\textquotesingle{} do gás, extrai BRA x anos e empilha}
+\NormalTok{ks }\OtherTok{\textless{}{-}}\NormalTok{ magclass}\SpecialCharTok{::}\FunctionTok{getItems}\NormalTok{(dis\_emis\_gas, }\AttributeTok{dim =} \DecValTok{3}\NormalTok{)}
+\NormalTok{ks }\OtherTok{\textless{}{-}} \FunctionTok{grep}\NormalTok{(}\FunctionTok{paste0}\NormalTok{(}\StringTok{"}\SpecialCharTok{\textbackslash{}\textbackslash{}}\StringTok{."}\NormalTok{, gas, }\StringTok{"$"}\NormalTok{), ks, }\AttributeTok{value =} \ConstantTok{TRUE}\NormalTok{) }
+
+\NormalTok{dfs }\OtherTok{\textless{}{-}} \FunctionTok{lapply}\NormalTok{(ks, }\ControlFlowTok{function}\NormalTok{(k) }\FunctionTok{mag\_to\_df}\NormalTok{(dis\_emis\_gas[}\StringTok{"BRA"}\NormalTok{, yearS, k]))}
+\NormalTok{df\_gas\_total }\OtherTok{\textless{}{-}}\NormalTok{ dplyr}\SpecialCharTok{::}\FunctionTok{bind\_rows}\NormalTok{(dfs)}
+
+\CommentTok{\# 4) Soma sobre as fontes para dar o total por célula/ano}
+\NormalTok{df\_gas\_sum }\OtherTok{\textless{}{-}} \FunctionTok{aggregate}\NormalTok{(value }\SpecialCharTok{\textasciitilde{}}\NormalTok{ lon }\SpecialCharTok{+}\NormalTok{ lat }\SpecialCharTok{+}\NormalTok{ iso }\SpecialCharTok{+}\NormalTok{ year.start }\SpecialCharTok{+}\NormalTok{ year.end,}
+                        \AttributeTok{data =}\NormalTok{ df\_gas\_total, }\AttributeTok{FUN =}\NormalTok{ sum)}
+
+\CommentTok{\# 5) Junta com grades BRA, aplica GWP (SAR) e prepara para grid}
+\NormalTok{df }\OtherTok{\textless{}{-}}\NormalTok{ BRA }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{left\_join}\NormalTok{(df\_gas\_sum, }\AttributeTok{by =} \FunctionTok{c}\NormalTok{(}\StringTok{"lon"}\NormalTok{,}\StringTok{"lat"}\NormalTok{,}\StringTok{"iso"}\NormalTok{)) }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{kt\_co2eq =} \FunctionTok{mt\_to\_kt}\NormalTok{(value))}
+
+\NormalTok{df\_map }\OtherTok{\textless{}{-}}\NormalTok{ df }\SpecialCharTok{|\textgreater{}}
+\NormalTok{  dplyr}\SpecialCharTok{::}\FunctionTok{select}\NormalTok{(lon, lat, year.end, }\AttributeTok{value =}\NormalTok{ kt\_co2eq) }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{filter}\NormalTok{(}\FunctionTok{is.finite}\NormalTok{(lon), }\FunctionTok{is.finite}\NormalTok{(lat), }\FunctionTok{is.finite}\NormalTok{(value))}
+
+\CommentTok{\# 6) Rasteriza por ano e plota}
+\NormalTok{g\_year }\OtherTok{\textless{}{-}} \FunctionTok{gridify\_by\_year}\NormalTok{(df\_map, }\AttributeTok{bra\_sf =}\NormalTok{ bra)}
+\NormalTok{p\_ch4  }\OtherTok{\textless{}{-}} \FunctionTok{plot\_faceted\_map}\NormalTok{(g\_year, bra, biomes, }\AttributeTok{title =} \StringTok{"CH4 {-} Brasil (kt CO2e, GWP100{-}AR5)"}\NormalTok{)}
+\NormalTok{p\_ch4}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}
+
+{\centering \includegraphics[width=1\linewidth]{emissions_files/figure-latex/ch4-1} 
+
+}
+
+\caption{Distribuição espacial de $CH_4$ (kt $CO_2e$, GWP100AR5) — 2010–2020.}\label{fig:ch4}
+\end{figure}
+
+A figura abaixo mostra a distribuição espacial do \(CH_4\) por fonte
+para 2020 (em kt CO₂e, GWP100-AR5), destacando as duas principais
+contribuições, de acordo com o MAgPIE, para o Brasil. Cada painel
+corresponde a uma fonte específica entre as que mais emitem no ano
+selecionado (por exemplo, fermentação entérica e manejo de
+dejetos/``AWMS'', conforme o retorno do modelo), com a mesma escala de
+cores nos painéis (tons mais escuros = emissões maiores).
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Encontra top{-}2 (BRA, 2020)}
+\NormalTok{year\_one }\OtherTok{\textless{}{-}} \FunctionTok{fmt\_year}\NormalTok{(}\DecValTok{2020}\NormalTok{)}
+\NormalTok{src\_top2 }\OtherTok{\textless{}{-}} \FunctionTok{top\_k\_sources}\NormalTok{(dis\_emis\_gas, }\AttributeTok{country =} \StringTok{"BRA"}\NormalTok{, }\AttributeTok{yearS =}\NormalTok{ year\_one, }\AttributeTok{k =} \DecValTok{2}\NormalTok{,}
+                          \AttributeTok{pattern =} \FunctionTok{paste0}\NormalTok{(}\StringTok{"}\SpecialCharTok{\textbackslash{}\textbackslash{}}\StringTok{."}\NormalTok{, gas, }\StringTok{"$"}\NormalTok{))}
+
+\CommentTok{\# Extrai, aplica GWP e rasteriza por fonte}
+\NormalTok{df\_src }\OtherTok{\textless{}{-}} \FunctionTok{lapply}\NormalTok{(src\_top2, }\ControlFlowTok{function}\NormalTok{(s) }\FunctionTok{extract\_one\_source}\NormalTok{(dis\_emis\_gas, }\StringTok{"BRA"}\NormalTok{, year\_one, s)) }\SpecialCharTok{|\textgreater{}}
+\NormalTok{  dplyr}\SpecialCharTok{::}\FunctionTok{bind\_rows}\NormalTok{() }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{kt\_co2eq =} \FunctionTok{mt\_to\_kt}\NormalTok{(value)) }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{transmute}\NormalTok{(lon, lat, source, }\AttributeTok{value =}\NormalTok{ kt\_co2eq) }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{filter}\NormalTok{(}\FunctionTok{is.finite}\NormalTok{(lon), }\FunctionTok{is.finite}\NormalTok{(lat), }\FunctionTok{is.finite}\NormalTok{(value))}
+
+\NormalTok{g\_src }\OtherTok{\textless{}{-}} \FunctionTok{split}\NormalTok{(df\_src, df\_src}\SpecialCharTok{$}\NormalTok{source) }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{lapply}\NormalTok{(}\ControlFlowTok{function}\NormalTok{(d) \{}
+\NormalTok{    r  }\OtherTok{\textless{}{-}}\NormalTok{ terra}\SpecialCharTok{::}\FunctionTok{rast}\NormalTok{(d[, }\FunctionTok{c}\NormalTok{(}\StringTok{"lon"}\NormalTok{,}\StringTok{"lat"}\NormalTok{,}\StringTok{"value"}\NormalTok{)], }\AttributeTok{type =} \StringTok{"xyz"}\NormalTok{, }\AttributeTok{crs =} \StringTok{"EPSG:4326"}\NormalTok{)}
+\NormalTok{    r  }\OtherTok{\textless{}{-}}\NormalTok{ terra}\SpecialCharTok{::}\FunctionTok{crop}\NormalTok{(r, terra}\SpecialCharTok{::}\FunctionTok{vect}\NormalTok{(bra))}
+\NormalTok{    r  }\OtherTok{\textless{}{-}}\NormalTok{ terra}\SpecialCharTok{::}\FunctionTok{mask}\NormalTok{(r, terra}\SpecialCharTok{::}\FunctionTok{vect}\NormalTok{(bra))}
+\NormalTok{    out }\OtherTok{\textless{}{-}} \FunctionTok{as.data.frame}\NormalTok{(r, }\AttributeTok{xy =} \ConstantTok{TRUE}\NormalTok{, }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{)}
+    \FunctionTok{names}\NormalTok{(out) }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{"lon"}\NormalTok{,}\StringTok{"lat"}\NormalTok{,}\StringTok{"value"}\NormalTok{)}
+\NormalTok{    out}\SpecialCharTok{$}\NormalTok{source }\OtherTok{\textless{}{-}} \FunctionTok{unique}\NormalTok{(d}\SpecialCharTok{$}\NormalTok{source)}
+\NormalTok{    out}
+\NormalTok{  \}) }\SpecialCharTok{|\textgreater{}}
+\NormalTok{  dplyr}\SpecialCharTok{::}\FunctionTok{bind\_rows}\NormalTok{()}
+
+\NormalTok{labels\_dict }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}
+  \StringTok{"awms.ch4"}     \OtherTok{=} \StringTok{"Manejo de dejetos animais"}\NormalTok{,}
+  \StringTok{"ent\_ferm.ch4"} \OtherTok{=} \StringTok{"Fermentação entérica"}\NormalTok{,}
+  \StringTok{"rice.ch4"}     \OtherTok{=} \StringTok{"Arroz irrigado"}
+\NormalTok{)}
+\NormalTok{lab }\OtherTok{\textless{}{-}}\NormalTok{ labels\_dict[src\_top2]; lab[}\FunctionTok{is.na}\NormalTok{(lab)] }\OtherTok{\textless{}{-}}\NormalTok{ src\_top2[}\FunctionTok{is.na}\NormalTok{(lab)]}
+\NormalTok{g\_src}\SpecialCharTok{$}\NormalTok{source }\OtherTok{\textless{}{-}} \FunctionTok{factor}\NormalTok{(g\_src}\SpecialCharTok{$}\NormalTok{source, }\AttributeTok{levels =}\NormalTok{ src\_top2, }\AttributeTok{labels =}\NormalTok{ lab)}
+
+\NormalTok{p\_ch4\_src }\OtherTok{\textless{}{-}} \FunctionTok{plot\_by\_source}\NormalTok{(g\_src, bra, biomes, }\AttributeTok{title =} \StringTok{"CH4 {-} Brasil (kt CO2e, GWP100{-}AR5) — principais fontes (2020)"}\NormalTok{)}
+\NormalTok{p\_ch4\_src}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}
+
+{\centering \includegraphics[width=1\linewidth]{emissions_files/figure-latex/source-ch4-1} 
+
+}
+
+\caption{Distribuição espacial de $CH_4$ considerando as principais fontes de emissão (kt $CO_2e$, GWP100AR5) — 2020.}\label{fig:source-ch4}
+\end{figure}
+
+A figura apresenta a comparação entre os totais de emissões de \(CH_4\)
+no Brasil, conforme estimados pelo modelo MAgPIE em sua versão default
+(SSP2), e os valores oficiais reportados no Quarto Inventário Nacional
+de Emissões, para os anos de 2010, 2015 e 2020.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Totais CH4 Brasil a partir do MAgPIE (kt CO2e, AR5)}
+\NormalTok{magpie\_br }\OtherTok{\textless{}{-}}\NormalTok{ df\_map }\SpecialCharTok{|\textgreater{}}
+\NormalTok{  dplyr}\SpecialCharTok{::}\FunctionTok{mutate}\NormalTok{(}\AttributeTok{year =} \FunctionTok{as.integer}\NormalTok{(}\FunctionTok{gsub}\NormalTok{(}\StringTok{"[\^{}0{-}9]"}\NormalTok{, }\StringTok{""}\NormalTok{, year.end))) }\SpecialCharTok{|\textgreater{}}
+\NormalTok{  dplyr}\SpecialCharTok{::}\FunctionTok{filter}\NormalTok{(year }\SpecialCharTok{\%in\%} \FunctionTok{c}\NormalTok{(}\DecValTok{2010}\NormalTok{, }\DecValTok{2015}\NormalTok{, }\DecValTok{2020}\NormalTok{)) }\SpecialCharTok{|\textgreater{}}
+\NormalTok{  dplyr}\SpecialCharTok{::}\FunctionTok{group\_by}\NormalTok{(year) }\SpecialCharTok{|\textgreater{}}
+\NormalTok{  dplyr}\SpecialCharTok{::}\FunctionTok{summarise}\NormalTok{(}\AttributeTok{value\_kt =} \FunctionTok{sum}\NormalTok{(value, }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{), }\AttributeTok{.groups =} \StringTok{"drop"}\NormalTok{) }\SpecialCharTok{|\textgreater{}}
+\NormalTok{  dplyr}\SpecialCharTok{::}\FunctionTok{mutate}\NormalTok{(}\AttributeTok{source =} \StringTok{"MAgPIE"}\NormalTok{)}
+
+\CommentTok{\# Totais CH4 Brasil do SIRENE}
+\NormalTok{sirene\_br }\OtherTok{\textless{}{-}}\NormalTok{ tibble}\SpecialCharTok{::}\FunctionTok{tibble}\NormalTok{(}
+  \AttributeTok{year =} \FunctionTok{c}\NormalTok{(}\DecValTok{2010}\NormalTok{, }\DecValTok{2015}\NormalTok{, }\DecValTok{2020}\NormalTok{),}
+  \AttributeTok{value\_kt =} \FunctionTok{c}\NormalTok{(}\DecValTok{432565}\NormalTok{, }\DecValTok{434079}\NormalTok{, }\DecValTok{449829}\NormalTok{),}
+  \AttributeTok{source =} \StringTok{"SIRENE"}
+\NormalTok{)}
+
+\CommentTok{\# Junta e plota}
+\NormalTok{df\_comp }\OtherTok{\textless{}{-}}\NormalTok{ dplyr}\SpecialCharTok{::}\FunctionTok{bind\_rows}\NormalTok{(magpie\_br, sirene\_br)}
+
+\FunctionTok{ggplot}\NormalTok{(df\_comp, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =} \FunctionTok{factor}\NormalTok{(year), }\AttributeTok{y =}\NormalTok{ value\_kt, }\AttributeTok{fill =}\NormalTok{ source)) }\SpecialCharTok{+}
+  \FunctionTok{geom\_col}\NormalTok{(}\AttributeTok{position =} \FunctionTok{position\_dodge}\NormalTok{(}\AttributeTok{width =} \FloatTok{0.8}\NormalTok{), }\AttributeTok{width =} \FloatTok{0.75}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{geom\_text}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{label =}\NormalTok{ scales}\SpecialCharTok{::}\FunctionTok{comma}\NormalTok{(value\_kt)),}
+            \AttributeTok{position =} \FunctionTok{position\_dodge}\NormalTok{(}\AttributeTok{width =} \FloatTok{0.8}\NormalTok{),}
+            \AttributeTok{vjust =} \SpecialCharTok{{-}}\FloatTok{0.2}\NormalTok{, }\AttributeTok{size =} \FloatTok{3.5}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{scale\_y\_continuous}\NormalTok{(}\AttributeTok{labels =}\NormalTok{ scales}\SpecialCharTok{::}\FunctionTok{label\_comma}\NormalTok{()) }\SpecialCharTok{+}
+  \FunctionTok{scale\_fill\_manual}\NormalTok{(}\AttributeTok{values =} \FunctionTok{c}\NormalTok{(}\StringTok{"MAgPIE"} \OtherTok{=}\NormalTok{ pal\_magpie[}\DecValTok{5}\NormalTok{], }\StringTok{"SIRENE"} \OtherTok{=}\NormalTok{ pal\_magpie[}\DecValTok{15}\NormalTok{])) }\SpecialCharTok{+}
+  \FunctionTok{labs}\NormalTok{(}
+    \AttributeTok{title =} \StringTok{"CH4 — Brasil (kt CO2e, GWP100{-}AR5): MAgPIE vs. SIRENE)"}\NormalTok{,}
+    \AttributeTok{x =} \ConstantTok{NULL}\NormalTok{, }\AttributeTok{y =} \StringTok{"kt CO2e"}\NormalTok{,}
+\NormalTok{  ) }\SpecialCharTok{+}
+  \FunctionTok{theme\_minimal}\NormalTok{(}\AttributeTok{base\_size =} \DecValTok{12}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{theme}\NormalTok{(}\AttributeTok{legend.position =} \StringTok{"top"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}
+
+{\centering \includegraphics[width=1\linewidth]{emissions_files/figure-latex/totais-ch4-1} 
+
+}
+
+\caption{Totais de emissões de $CH_4$ no Brasil (kt $CO_2e$, GWP100-AR5) em 2010, 2015 e 2020, comparando os resultados do modelo MAgPIE (cenário default, SSP2) com os valores reportados pelo Quarto Inventário Nacional de Emissões (SIRENE).}\label{fig:totais-ch4}
+\end{figure}
+
+\subsection{Óxido Nitroso}\label{uxf3xido-nitroso}
+
+A figura abaixo apresenta a distribuição espacial das emissões totais de
+\(N_2O\) no Brasil (em kt CO₂e, GWP100--AR5), conforme estimativas do
+modelo MAgPIE em sua configuração padrão (default) para os anos de 2010,
+2015 e 2020. Diferentemente do caso das emissões de metano, cada célula
+do grid resulta da redistribuição das emissões regionais para o nível de
+célula, ponderada pela área de culturas agrícolas.
+
+De acordo com as estimativas do MAgPIE, a maior concentração das
+emissões de \(N_2O\) está localizada principalmente na região
+Centro-Sul, abrangendo áreas dos estados de Mato Grosso do Sul, Paraná,
+São Paulo, Minas Gerais e parte de Goiás.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Uso da terra (pastagem como weight)}
+\NormalTok{x }\OtherTok{\textless{}{-}} \FunctionTok{read.magpie}\NormalTok{(}\StringTok{"cell.land\_0.5.mz"}\NormalTok{)[,, }\StringTok{"crop"}\NormalTok{]}
+\NormalTok{x[}\FunctionTok{is.na}\NormalTok{(x)] }\OtherTok{\textless{}{-}} \DecValTok{0}
+
+\NormalTok{pal\_magpie }\OtherTok{\textless{}{-}} \FunctionTok{hcl.colors}\NormalTok{(}\DecValTok{20}\NormalTok{, }\StringTok{"Reds"}\NormalTok{, }\AttributeTok{rev =} \ConstantTok{TRUE}\NormalTok{)}
+
+\NormalTok{gas    }\OtherTok{\textless{}{-}} \StringTok{"n2o"}
+\NormalTok{years  }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\DecValTok{2010}\NormalTok{, }\DecValTok{2015}\NormalTok{, }\DecValTok{2020}\NormalTok{)}
+\NormalTok{yearS  }\OtherTok{\textless{}{-}} \FunctionTok{fmt\_year}\NormalTok{(years)                 }\CommentTok{\# "y2010.y2010", ...}
+
+\CommentTok{\# 1) Emissões por gás no nível regional (reg), em Mt gás}
+\NormalTok{emis\_gas      }\OtherTok{\textless{}{-}} \FunctionTok{Emissions}\NormalTok{(}\AttributeTok{gdx =} \StringTok{"fulldata.gdx"}\NormalTok{, }\AttributeTok{type =}\NormalTok{ gas, }\AttributeTok{level =} \StringTok{"reg"}\NormalTok{, }\AttributeTok{unit =} \StringTok{"GWP100AR5"}\NormalTok{)}
+\NormalTok{emis\_gas }\OtherTok{\textless{}{-}}\NormalTok{ emis\_gas[,}\FunctionTok{c}\NormalTok{(}\StringTok{"y2010"}\NormalTok{, }\StringTok{"y2015"}\NormalTok{, }\StringTok{"y2020"}\NormalTok{),]}
+
+\CommentTok{\# 2) Agrega de região {-}\textgreater{} célula usando seu mapa/weight}
+\NormalTok{dis\_emis\_gas  }\OtherTok{\textless{}{-}}\NormalTok{ madrat}\SpecialCharTok{::}\FunctionTok{toolAggregate}\NormalTok{(emis\_gas, map\_file, x, }\AttributeTok{from =} \StringTok{"region"}\NormalTok{, }\AttributeTok{to =} \StringTok{"cell"}\NormalTok{)}
+
+\CommentTok{\# 3) Para todos os \textquotesingle{}pollutants\textquotesingle{} do gás, extrai BRA x anos e empilha}
+\NormalTok{ks }\OtherTok{\textless{}{-}}\NormalTok{ magclass}\SpecialCharTok{::}\FunctionTok{getItems}\NormalTok{(dis\_emis\_gas, }\AttributeTok{dim =} \DecValTok{3}\NormalTok{)}
+\NormalTok{ks }\OtherTok{\textless{}{-}} \FunctionTok{grep}\NormalTok{(}\FunctionTok{paste0}\NormalTok{(}\StringTok{"}\SpecialCharTok{\textbackslash{}\textbackslash{}}\StringTok{."}\NormalTok{, gas, }\StringTok{"$"}\NormalTok{), ks, }\AttributeTok{value =} \ConstantTok{TRUE}\NormalTok{) }
+
+\NormalTok{dfs\_n }\OtherTok{\textless{}{-}} \FunctionTok{lapply}\NormalTok{(ks, }\ControlFlowTok{function}\NormalTok{(k) }\FunctionTok{mag\_to\_df}\NormalTok{(dis\_emis\_gas[}\StringTok{"BRA"}\NormalTok{, yearS, k]))}
+\NormalTok{df\_gas\_total }\OtherTok{\textless{}{-}}\NormalTok{ dplyr}\SpecialCharTok{::}\FunctionTok{bind\_rows}\NormalTok{(dfs\_n)}
+
+\CommentTok{\# 4) Soma sobre as fontes para dar o total por célula/ano}
+\NormalTok{df\_gas\_sum }\OtherTok{\textless{}{-}} \FunctionTok{aggregate}\NormalTok{(value }\SpecialCharTok{\textasciitilde{}}\NormalTok{ lon }\SpecialCharTok{+}\NormalTok{ lat }\SpecialCharTok{+}\NormalTok{ iso }\SpecialCharTok{+}\NormalTok{ year.start }\SpecialCharTok{+}\NormalTok{ year.end,}
+                        \AttributeTok{data =}\NormalTok{ df\_gas\_total, }\AttributeTok{FUN =}\NormalTok{ sum)}
+
+\CommentTok{\# 5) Junta com grades BRA, aplica GWP (SAR) e prepara para grid}
+\NormalTok{df\_n2o }\OtherTok{\textless{}{-}}\NormalTok{ BRA }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{left\_join}\NormalTok{(df\_gas\_sum, }\AttributeTok{by =} \FunctionTok{c}\NormalTok{(}\StringTok{"lon"}\NormalTok{,}\StringTok{"lat"}\NormalTok{,}\StringTok{"iso"}\NormalTok{)) }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{kt\_co2eq =} \FunctionTok{mt\_to\_kt}\NormalTok{(value))}
+
+\NormalTok{df\_map\_n2o }\OtherTok{\textless{}{-}}\NormalTok{ df\_n2o }\SpecialCharTok{|\textgreater{}}
+\NormalTok{  dplyr}\SpecialCharTok{::}\FunctionTok{select}\NormalTok{(lon, lat, year.end, }\AttributeTok{value =}\NormalTok{ kt\_co2eq) }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{filter}\NormalTok{(}\FunctionTok{is.finite}\NormalTok{(lon), }\FunctionTok{is.finite}\NormalTok{(lat), }\FunctionTok{is.finite}\NormalTok{(value))}
+
+\CommentTok{\# 6) Rasteriza por ano e plota}
+\NormalTok{g\_year\_n2o }\OtherTok{\textless{}{-}} \FunctionTok{gridify\_by\_year}\NormalTok{(df\_map\_n2o, }\AttributeTok{bra\_sf =}\NormalTok{ bra)}
+\NormalTok{p\_n2o  }\OtherTok{\textless{}{-}} \FunctionTok{plot\_faceted\_map}\NormalTok{(g\_year\_n2o, bra, biomes, }\AttributeTok{title =} \StringTok{"N2O {-} Brasil (kt CO2e, GWP100{-}AR5"}\NormalTok{)}
+\NormalTok{p\_n2o}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}
+
+{\centering \includegraphics[width=1\linewidth]{emissions_files/figure-latex/unnamed-chunk-1-1} 
+
+}
+
+\caption{Distribuição espacial de $N_2O$ (kt $CO_2e$, GWP100AR5) — 2010–2020.}\label{fig:unnamed-chunk-1}
+\end{figure}
+
+O modelo incorpora múltiplas fontes de \(N_2O\) (33 fontes), incluindo:
+matéria orgânica do solo, fertilizantes inorgânicos e esterco aplicados
+em lavouras e pastagens, manejo de resíduos animais, decomposição e
+queima de resíduos agrícolas, cultivo de arroz, além de óxido nitroso
+proveniente de carbono vegetal, serapilheira e outras vegetações,
+\emph{etc}.
+
+A figura a seguir apresenta a distribuição espacial do \(N_2O\) no
+Brasil em 2020 (kt CO2e, GWP100-AR5), considerando as duas principais
+fontes de emissão segundo o modelo MAgPIE: \textbf{esterco em pastagens}
+e \textbf{manejo de dejetos animais}. De acordo com as estimativas, em
+2020, o Brasil teria emitido 113.298,6 ktCO\_2e de óxido nitroso. Deste
+total, 26\% são atribuídos ao esterco em pastagens e 20\% ao manejo de
+dejetos animais.
+
+As bases de dados utilizadas incluem FAO, Associação Internacional de
+Fertilizantes (IFA) e literatura científica especializada, com detalhes
+metodológicos descritos em Bodirsky et al.~(2012).
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Encontra top{-}2 n2o (BRA, 2020)}
+\NormalTok{year\_one\_n }\OtherTok{\textless{}{-}} \FunctionTok{fmt\_year}\NormalTok{(}\DecValTok{2020}\NormalTok{)}
+\NormalTok{src\_top2\_n }\OtherTok{\textless{}{-}} \FunctionTok{top\_k\_sources}\NormalTok{(dis\_emis\_gas, }\AttributeTok{country =} \StringTok{"BRA"}\NormalTok{, }\AttributeTok{yearS =}\NormalTok{ year\_one\_n, }\AttributeTok{k =} \DecValTok{2}\NormalTok{,}
+                          \AttributeTok{pattern =} \FunctionTok{paste0}\NormalTok{(}\StringTok{"}\SpecialCharTok{\textbackslash{}\textbackslash{}}\StringTok{."}\NormalTok{, gas, }\StringTok{"$"}\NormalTok{))}
+
+\CommentTok{\# Extrai, aplica GWP e rasteriza por fonte}
+\NormalTok{df\_src\_n }\OtherTok{\textless{}{-}} \FunctionTok{lapply}\NormalTok{(src\_top2\_n, }\ControlFlowTok{function}\NormalTok{(s) }\FunctionTok{extract\_one\_source}\NormalTok{(dis\_emis\_gas, }\StringTok{"BRA"}\NormalTok{, }
+\NormalTok{                                                              year\_one\_n, s)) }\SpecialCharTok{|\textgreater{}}
+\NormalTok{  dplyr}\SpecialCharTok{::}\FunctionTok{bind\_rows}\NormalTok{() }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{kt\_co2eq =} \FunctionTok{mt\_to\_kt}\NormalTok{(value)) }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{transmute}\NormalTok{(lon, lat, source, }\AttributeTok{value =}\NormalTok{ kt\_co2eq) }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{filter}\NormalTok{(}\FunctionTok{is.finite}\NormalTok{(lon), }\FunctionTok{is.finite}\NormalTok{(lat), }\FunctionTok{is.finite}\NormalTok{(value))}
+
+\NormalTok{g\_src\_n }\OtherTok{\textless{}{-}} \FunctionTok{split}\NormalTok{(df\_src\_n, df\_src\_n}\SpecialCharTok{$}\NormalTok{source) }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{lapply}\NormalTok{(}\ControlFlowTok{function}\NormalTok{(d) \{}
+\NormalTok{    r  }\OtherTok{\textless{}{-}}\NormalTok{ terra}\SpecialCharTok{::}\FunctionTok{rast}\NormalTok{(d[, }\FunctionTok{c}\NormalTok{(}\StringTok{"lon"}\NormalTok{,}\StringTok{"lat"}\NormalTok{,}\StringTok{"value"}\NormalTok{)], }\AttributeTok{type =} \StringTok{"xyz"}\NormalTok{, }\AttributeTok{crs =} \StringTok{"EPSG:4326"}\NormalTok{)}
+\NormalTok{    r  }\OtherTok{\textless{}{-}}\NormalTok{ terra}\SpecialCharTok{::}\FunctionTok{crop}\NormalTok{(r, terra}\SpecialCharTok{::}\FunctionTok{vect}\NormalTok{(bra))}
+\NormalTok{    r  }\OtherTok{\textless{}{-}}\NormalTok{ terra}\SpecialCharTok{::}\FunctionTok{mask}\NormalTok{(r, terra}\SpecialCharTok{::}\FunctionTok{vect}\NormalTok{(bra))}
+\NormalTok{    out }\OtherTok{\textless{}{-}} \FunctionTok{as.data.frame}\NormalTok{(r, }\AttributeTok{xy =} \ConstantTok{TRUE}\NormalTok{, }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{)}
+    \FunctionTok{names}\NormalTok{(out) }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{"lon"}\NormalTok{,}\StringTok{"lat"}\NormalTok{,}\StringTok{"value"}\NormalTok{)}
+\NormalTok{    out}\SpecialCharTok{$}\NormalTok{source }\OtherTok{\textless{}{-}} \FunctionTok{unique}\NormalTok{(d}\SpecialCharTok{$}\NormalTok{source)}
+\NormalTok{    out}
+\NormalTok{  \}) }\SpecialCharTok{|\textgreater{}}
+\NormalTok{  dplyr}\SpecialCharTok{::}\FunctionTok{bind\_rows}\NormalTok{()}
+
+\NormalTok{labels\_dict }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}
+  \StringTok{"man\_past.n2o"} \OtherTok{=} \StringTok{"Esterco em pastagens"}\NormalTok{,}
+  \StringTok{"awms.n2o"}  \OtherTok{=} \StringTok{"Manejo de dejetos animais"}
+\NormalTok{  )}
+
+\NormalTok{lab }\OtherTok{\textless{}{-}}\NormalTok{ labels\_dict[src\_top2\_n]; lab[}\FunctionTok{is.na}\NormalTok{(lab)] }\OtherTok{\textless{}{-}}\NormalTok{ src\_top2\_n[}\FunctionTok{is.na}\NormalTok{(lab)]}
+\NormalTok{g\_src\_n}\SpecialCharTok{$}\NormalTok{source }\OtherTok{\textless{}{-}} \FunctionTok{factor}\NormalTok{(g\_src\_n}\SpecialCharTok{$}\NormalTok{source, }\AttributeTok{levels =}\NormalTok{ src\_top2\_n, }\AttributeTok{labels =}\NormalTok{ lab)}
+
+\NormalTok{p\_n2o\_src }\OtherTok{\textless{}{-}} \FunctionTok{plot\_by\_source}\NormalTok{(g\_src\_n, bra, biomes, }\AttributeTok{title =} \StringTok{"N2O {-} Brasil (kt CO2e, GWP100{-}AR5) {-} principais fontes (2020)"}\NormalTok{)}
+\NormalTok{p\_n2o\_src}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}
+
+{\centering \includegraphics[width=1\linewidth]{emissions_files/figure-latex/unnamed-chunk-2-1} 
+
+}
+
+\caption{Distribuição espacial de $N_2O$ considerando as principais fontes de emissão (kt $CO_2e$, GWP100AR5) — 2020.}\label{fig:unnamed-chunk-2}
+\end{figure}
+
+A figura compara os totais de emissão de \(N_2O\) no Brasil estimados
+pelo modelo MAgPIE (versão default, \(SSP2\)) com os valores oficiais do
+Quarto Inventário Nacional de Emissões para os anos de 2010, 2015 e
+2020. De modo geral, as estimativas ficaram relativamente próximas.
+Contudo, é importante considerar que a desagregação das atividades
+relacionadas às emissões são feitas de formas distintas, o que pode
+levar a conclusões também distintas quanto às principais fontes de
+emissões.
+
+No SIRENE, dentro do setor agropecuário, a principal fonte de emissão é
+o manejo de solos agrícolas, que inclui fertilizantes sintéticos, adubos
+orgânicos, deposição direta de dejetos, resíduos agrícolas,
+mineralização de nitrogênio associada à perda de carbono do solo e
+manejo de solos orgânicos. O esterco em pastagens, identificado pelo
+MAgPIE como uma das principais fontes, está incluído nesse agrupamento.
+
+As bases de dados e referências utilizadas pelo MAgPIE e pelo SIRENE
+diferem significativamente, embora ambos adotem fatores de emissão
+conforme as diretrizes do IPCC (2006).
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Totais N20 Brasil a partir do MAgPIE (kt CO2e, AR5)}
+\NormalTok{magpie\_br\_n }\OtherTok{\textless{}{-}}\NormalTok{ df\_map\_n2o }\SpecialCharTok{|\textgreater{}}
+\NormalTok{  dplyr}\SpecialCharTok{::}\FunctionTok{mutate}\NormalTok{(}\AttributeTok{year =} \FunctionTok{as.integer}\NormalTok{(}\FunctionTok{gsub}\NormalTok{(}\StringTok{"[\^{}0{-}9]"}\NormalTok{, }\StringTok{""}\NormalTok{, year.end))) }\SpecialCharTok{|\textgreater{}}
+\NormalTok{  dplyr}\SpecialCharTok{::}\FunctionTok{filter}\NormalTok{(year }\SpecialCharTok{\%in\%} \FunctionTok{c}\NormalTok{(}\DecValTok{2010}\NormalTok{, }\DecValTok{2015}\NormalTok{, }\DecValTok{2020}\NormalTok{)) }\SpecialCharTok{|\textgreater{}}
+\NormalTok{  dplyr}\SpecialCharTok{::}\FunctionTok{group\_by}\NormalTok{(year) }\SpecialCharTok{|\textgreater{}}
+\NormalTok{  dplyr}\SpecialCharTok{::}\FunctionTok{summarise}\NormalTok{(}\AttributeTok{value\_kt =} \FunctionTok{sum}\NormalTok{(value, }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{), }\AttributeTok{.groups =} \StringTok{"drop"}\NormalTok{) }\SpecialCharTok{|\textgreater{}}
+\NormalTok{  dplyr}\SpecialCharTok{::}\FunctionTok{mutate}\NormalTok{(}\AttributeTok{source =} \StringTok{"MAgPIE"}\NormalTok{)}
+
+\CommentTok{\# Totais N2O Brasil do SIRENE}
+\NormalTok{sirene\_br\_n }\OtherTok{\textless{}{-}}\NormalTok{ tibble}\SpecialCharTok{::}\FunctionTok{tibble}\NormalTok{(}
+  \AttributeTok{year =} \FunctionTok{c}\NormalTok{(}\DecValTok{2010}\NormalTok{, }\DecValTok{2015}\NormalTok{, }\DecValTok{2020}\NormalTok{),}
+  \AttributeTok{value\_kt =} \FunctionTok{c}\NormalTok{(}\DecValTok{130140}\NormalTok{,  }\DecValTok{140231}\NormalTok{,  }\DecValTok{156306}\NormalTok{), }\CommentTok{\# excluir, energia, Resíduos, processos industriais}
+  \AttributeTok{source =} \StringTok{"SIRENE"}
+\NormalTok{  )}
+
+\CommentTok{\# Junta e plota}
+\NormalTok{df\_comp\_n }\OtherTok{\textless{}{-}}\NormalTok{ dplyr}\SpecialCharTok{::}\FunctionTok{bind\_rows}\NormalTok{(magpie\_br\_n, sirene\_br\_n)}
+
+\FunctionTok{ggplot}\NormalTok{(df\_comp\_n, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =} \FunctionTok{factor}\NormalTok{(year), }\AttributeTok{y =}\NormalTok{ value\_kt, }\AttributeTok{fill =}\NormalTok{ source)) }\SpecialCharTok{+}
+  \FunctionTok{geom\_col}\NormalTok{(}\AttributeTok{position =} \FunctionTok{position\_dodge}\NormalTok{(}\AttributeTok{width =} \FloatTok{0.8}\NormalTok{), }\AttributeTok{width =} \FloatTok{0.75}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{geom\_text}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{label =}\NormalTok{ scales}\SpecialCharTok{::}\FunctionTok{comma}\NormalTok{(value\_kt)),}
+            \AttributeTok{position =} \FunctionTok{position\_dodge}\NormalTok{(}\AttributeTok{width =} \FloatTok{0.8}\NormalTok{),}
+            \AttributeTok{vjust =} \SpecialCharTok{{-}}\FloatTok{0.2}\NormalTok{, }\AttributeTok{size =} \FloatTok{3.5}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{scale\_y\_continuous}\NormalTok{(}\AttributeTok{labels =}\NormalTok{ scales}\SpecialCharTok{::}\FunctionTok{label\_comma}\NormalTok{()) }\SpecialCharTok{+}
+  \FunctionTok{scale\_fill\_manual}\NormalTok{(}\AttributeTok{values =} \FunctionTok{c}\NormalTok{(}\StringTok{"MAgPIE"} \OtherTok{=}\NormalTok{ pal\_magpie[}\DecValTok{5}\NormalTok{], }\StringTok{"SIRENE"} \OtherTok{=}\NormalTok{ pal\_magpie[}\DecValTok{15}\NormalTok{])) }\SpecialCharTok{+}
+  \FunctionTok{labs}\NormalTok{(}
+    \AttributeTok{title =} \StringTok{"N20 {-} Brasil (kt CO2e, GWP100{-}AR5): MAgPIE vs. SIRENE"}\NormalTok{,}
+    \AttributeTok{x =} \ConstantTok{NULL}\NormalTok{, }\AttributeTok{y =} \StringTok{"kt CO2e"}\NormalTok{,}
+\NormalTok{  ) }\SpecialCharTok{+}
+  \FunctionTok{theme\_minimal}\NormalTok{(}\AttributeTok{base\_size =} \DecValTok{12}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{theme}\NormalTok{(}\AttributeTok{legend.position =} \StringTok{"top"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}
+
+{\centering \includegraphics[width=1\linewidth]{emissions_files/figure-latex/unnamed-chunk-3-1} 
+
+}
+
+\caption{Totais de emissões de $N_2O$ no Brasil (kt $CO_2e$, GWP100-AR5) em 2010, 2015 e 2020, comparando os resultados do modelo MAgPIE (cenário default, SSP2) com os valores reportados pelo Quarto Inventário Nacional de Emissões (SIRENE).}\label{fig:unnamed-chunk-3}
+\end{figure}
+
+\end{document}
